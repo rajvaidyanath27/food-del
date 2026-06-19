@@ -48,22 +48,27 @@
 }
 
 .order-buttons {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.order-buttons button {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background-color: tomato;
-    color: white;
-    font-size: 14px;
-    transition: 0.3s;
+.track-btn,
+.invoice-btn {
+  min-width: 140px;
+  height: 45px;
+  border: none;
+  border-radius: 8px;
+  background: tomato;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.order-buttons button:hover {
-    opacity: 0.85;
+.track-btn:hover,
+.invoice-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
 }

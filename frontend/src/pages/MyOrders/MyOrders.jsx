@@ -40,20 +40,20 @@ const MyOrders = () => {
                 <p>{currency}{order.amount}.00</p>
                 <p>Items: {order.items.length}</p>
                 <p><span>&#x25cf;</span> <b>{order.status}</b></p>
-                <div className="order-buttons">
-                    <button onClick={fetchOrders}>Track Order</button>
+                          <div className="order-buttons">
+              <button className="track-btn" onClick={fetchOrders}>
+                Track Order
+              </button>
 
-                    <button
-                      onClick={() =>
-                        window.open(
-                          `${url}/api/order/invoice/${order._id}`,
-                          "_blank"
-                        )
-                      }
-                    >
-                      📄 Download Invoice
-                    </button>
-                  </div>
+              <button
+                className="invoice-btn"
+                onClick={() =>
+                  window.open(`${url}/api/order/invoice/${order._id}`, "_blank")
+                }
+              >
+                📄 Invoice
+              </button>
+            </div>
             </div>
           )
         })}
