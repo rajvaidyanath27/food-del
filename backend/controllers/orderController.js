@@ -1,7 +1,10 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js"
 import Stripe from "stripe";
+import PDFDocument from "pdfkit";
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 
 //config variables
 const currency = "inr";
@@ -130,4 +133,51 @@ const verifyOrder = async (req, res) => {
 
 }
 
-export { placeOrder, listOrders, userOrders, updateStatus, verifyOrder, placeOrderCod }
+
+
+export const generateInvoice = async (req, res) => {
+    const order = await orderModel.findById(req.params.orderId);
+
+    const doc = new PDFDocument();
+
+    res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=invoice-${order._id}.pdf`
+    );
+
+    res.setHeader("Content-Type", "application/pdf");
+
+    doc.pipe(res);
+
+    doc.fontSize(24).text("TOMATO INVOICE", { align: "center" });
+    doc.moveDown();
+
+    doc.fontSize(14).text(`Order ID: ${order._id}`);
+    doc.text(`Customer: ${order.address.firstName} ${order.address.lastName}`);
+    doc.text(`Payment: ${order.payment ? "Paid" : "COD"}`);
+    doc.moveDown();
+
+    doc.text("Items:");
+
+    order.items.forEach((item) => {
+        doc.text(
+            `${item.name}  x${item.quantity}   ₹${item.price * item.quantity}`
+        );
+    });
+
+    doc.moveDown();
+    doc.text(`Delivery Fee: ₹50`);
+    doc.text(`Total: ₹${order.amount}`);
+
+    doc.end();
+};
+
+export {
+  placeOrder,
+  listOrders,
+  userOrders,
+  updateStatus,
+  verifyOrder,
+  placeOrderCod,
+  
+}

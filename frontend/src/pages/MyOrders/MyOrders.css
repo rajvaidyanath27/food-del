@@ -46,3 +46,24 @@
     }
     
 }
+
+.order-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.order-buttons button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: tomato;
+    color: white;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.order-buttons button:hover {
+    opacity: 0.85;
+}
