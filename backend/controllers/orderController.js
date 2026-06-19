@@ -136,40 +136,107 @@ const verifyOrder = async (req, res) => {
 
 
 export const generateInvoice = async (req, res) => {
-    const order = await orderModel.findById(req.params.orderId);
+    try {
+        const order = await orderModel.findById(req.params.orderId);
 
-    const doc = new PDFDocument();
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
 
-    res.setHeader(
-        "Content-Disposition",
-        `attachment; filename=invoice-${order._id}.pdf`
-    );
+        const doc = new PDFDocument({ margin: 50 });
 
-    res.setHeader("Content-Type", "application/pdf");
-
-    doc.pipe(res);
-
-    doc.fontSize(24).text("TOMATO INVOICE", { align: "center" });
-    doc.moveDown();
-
-    doc.fontSize(14).text(`Order ID: ${order._id}`);
-    doc.text(`Customer: ${order.address.firstName} ${order.address.lastName}`);
-    doc.text(`Payment: ${order.payment ? "Paid" : "COD"}`);
-    doc.moveDown();
-
-    doc.text("Items:");
-
-    order.items.forEach((item) => {
-        doc.text(
-            `${item.name}  x${item.quantity}   ₹${item.price * item.quantity}`
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename=invoice-${order._id}.pdf`
         );
-    });
 
-    doc.moveDown();
-    doc.text(`Delivery Fee: ₹50`);
-    doc.text(`Total: ₹${order.amount}`);
+        res.setHeader("Content-Type", "application/pdf");
 
-    doc.end();
+        doc.pipe(res);
+
+        // ======= Header =======
+        doc
+            .fontSize(28)
+            .fillColor("#ff6347")
+            .text("🍅 TOMATO", { align: "center" });
+
+        doc
+            .fontSize(18)
+            .fillColor("black")
+            .text("ORDER INVOICE", { align: "center" });
+
+        doc.moveDown();
+        doc.text("------------------------------------------------------------");
+        doc.moveDown();
+
+        // ======= Order Details =======
+        doc.fontSize(12);
+        doc.text(`Order ID : ${order._id}`);
+        doc.text(`Date     : ${new Date().toLocaleString()}`);
+        doc.moveDown();
+
+        // ======= Customer Details =======
+        doc.fontSize(16).text("Customer Details");
+        doc.moveDown(0.5);
+
+        doc.fontSize(12);
+        doc.text(
+            `Name : ${order.address.firstName} ${order.address.lastName}`
+        );
+        if (order.address.email)
+            doc.text(`Email : ${order.address.email}`);
+        if (order.address.phone)
+            doc.text(`Phone : ${order.address.phone}`);
+
+        doc.moveDown();
+
+        // ======= Items =======
+        doc.fontSize(16).text("Items Ordered");
+        doc.moveDown(0.5);
+
+        doc.fontSize(12);
+        doc.text("----------------------------------------------");
+
+        order.items.forEach((item) => {
+            doc.text(
+                `${item.name}   x${item.quantity}   ₹${
+                    item.price * item.quantity
+                }`
+            );
+        });
+
+        doc.text("----------------------------------------------");
+        doc.moveDown();
+
+        // ======= Total =======
+        doc.fontSize(12);
+        doc.text(`Delivery Fee : ₹50`);
+        doc.text(`Grand Total  : ₹${order.amount}`);
+        doc.text(
+            `Payment      : ${order.payment ? "✅ Paid" : "Cash on Delivery"}`
+        );
+
+        doc.moveDown(2);
+
+        // ======= Footer =======
+        doc
+            .fontSize(14)
+            .fillColor("gray")
+            .text("❤️ Thank you for ordering with Tomato!", {
+                align: "center",
+            });
+
+        doc.end();
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to generate invoice",
+        });
+    }
 };
 
 export {
